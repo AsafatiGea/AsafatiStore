@@ -6,16 +6,24 @@ export default function StoreLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <div className="min-h-screen bg-black text-white">
       {/* Navbar */}
-      <header className="border-b border-yellow-500/30 p-4 flex justify-between">
-        <Link href="/" className="text-yellow-400 font-bold">
+      <header className="border-b border-yellow-500/30 px-6 py-4 flex justify-between items-center">
+        <Link href="/" className="text-2xl font-bold text-yellow-400">
           Asafati<span className="text-red-500">Store</span>
         </Link>
 
-        <nav className="flex gap-4">
-          <Link href="/marketplace">Marketplace</Link>
-          <Link href="/login">Login</Link>
+        <nav className="flex gap-6 text-sm font-medium">
+          <Link
+            href="/marketplace"
+            className="hover:text-yellow-400 transition"
+          >
+            Marketplace
+          </Link>
+
+          <Link href="/login" className="hover:text-yellow-400 transition">
+            Login
+          </Link>
         </nav>
       </header>
 
