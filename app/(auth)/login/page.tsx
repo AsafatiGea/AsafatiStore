@@ -6,18 +6,40 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const router = useRouter();
 
+  const [loginMethod, setLoginMethod] = useState("email");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
   const handleLogin = async () => {
+    setLoading(true);
+
+    let loginEmail = email;
+
+    if (loginMethod === "phone") {
+      loginEmail = `${phone}@asafatistore.local`;
+    }
+
+    if (loginMethod === "username") {
+      loginEmail = `${username}@asafatistore.local`;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: loginEmail,
       password,
     });
 
-    if (error) return alert(error.message);
+    if (error) {
+      setLoading(false);
+      return alert(error.message);
+    }
 
+    setLoading(false);
     router.push("/");
   };
 
@@ -32,21 +54,54 @@ export default function LoginPage() {
           Masuk ke akun AsafatiStore
         </p>
 
-        <input
-          type="email"
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-4 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:outline-none focus:border-yellow-400"
-        />
+        <select
+          value={loginMethod}
+          onChange={(e) => setLoginMethod(e.target.value)}
+          className="w-full p-3 mb-4 rounded-lg bg-zinc-800 text-white border border-zinc-700"
+        >
+          <option value="email">Login dengan Email</option>
+          <option value="phone">Login dengan Nomor HP</option>
+          <option value="username">Login dengan Username</option>
+        </select>
+
+        {loginMethod === "email" && (
+          <input
+            type="email"
+            placeholder="Masukkan Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 mb-4 rounded-lg bg-zinc-800 text-white border border-zinc-700"
+          />
+        )}
+
+        {loginMethod === "phone" && (
+          <input
+            type="text"
+            placeholder="Masukkan Nomor HP"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full p-3 mb-4 rounded-lg bg-zinc-800 text-white border border-zinc-700"
+          />
+        )}
+
+        {loginMethod === "username" && (
+          <input
+            type="text"
+            placeholder="Masukkan Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full p-3 mb-4 rounded-lg bg-zinc-800 text-white border border-zinc-700"
+          />
+        )}
 
         <input
           type="password"
           placeholder="Password"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-2 rounded-lg bg-zinc-800 text-white border border-zinc-700 focus:outline-none focus:border-yellow-400"
+          className="w-full p-3 mb-2 rounded-lg bg-zinc-800 text-white border border-zinc-700"
         />
 
-        {/* Link bawah password */}
         <div className="flex justify-between text-sm mb-5">
           <Link
             href="/register"
@@ -59,15 +114,16 @@ export default function LoginPage() {
             href="/forgot-password"
             className="text-gray-400 hover:text-yellow-400 transition"
           >
-            Lupa akun?
+            Lupa sandi?
           </Link>
         </div>
 
         <button
           onClick={handleLogin}
+          disabled={loading}
           className="w-full bg-yellow-400 text-black py-3 rounded-lg font-semibold hover:bg-red-500 hover:text-white transition"
         >
-          Masuk
+          {loading ? "Memproses..." : "Masuk"}
         </button>
       </div>
     </div>
