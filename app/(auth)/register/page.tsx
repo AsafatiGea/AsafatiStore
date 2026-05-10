@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [agree, setAgree] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
@@ -26,6 +27,7 @@ export default function RegisterPage() {
 
     setLoading(true);
 
+    // REGISTER AUTH
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -33,76 +35,126 @@ export default function RegisterPage() {
 
     if (error) {
       setLoading(false);
+
       return alert(error.message);
     }
 
     const userId = data.user?.id;
 
     if (userId) {
+      // AUTO USERNAME
+      const username =
+        fullName.toLowerCase().replace(/\s+/g, "") +
+        Math.floor(Math.random() * 9999);
+
+      // AUTO AVATAR
+      const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        fullName,
+      )}&background=facc15&color=000`;
+
+      // INSERT PROFILE
       const { error: profileError } = await supabase.from("profiles").insert({
         id: userId,
+
         full_name: fullName,
+
+        username: username,
+
         email: email,
+
         phone: phone,
-        role: "customer",
+
+        role: "client",
+
         provider: "email",
+
+        avatar_url: avatar,
+
+        verified: false,
       });
 
       if (profileError) {
         setLoading(false);
+
         return alert(profileError.message);
       }
     }
 
     setLoading(false);
-    alert("Berhasil daftar!");
+
+    alert("Registrasi berhasil!");
+
     router.push("/login");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black px-4">
-      <div className="bg-zinc-900 border border-yellow-500/20 p-8 rounded-2xl w-full max-w-md shadow-xl">
-        <h1 className="text-3xl font-bold mb-2 text-yellow-400 text-center">
-          Register
-        </h1>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md bg-zinc-900 border border-yellow-500/20 rounded-3xl p-8 shadow-2xl">
+        {/* HEADER */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-black text-yellow-400">AsafatiStore</h1>
 
-        <p className="text-gray-400 text-sm text-center mb-6">
-          Buat akun baru AsafatiStore
-        </p>
+          <p className="text-gray-400 mt-3">
+            Buat akun baru dan mulai masuk ke marketplace digital modern.
+          </p>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Nama Lengkap"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="w-full p-3 mb-3 rounded-lg bg-zinc-800 text-white border border-zinc-700"
-        />
+        {/* FULL NAME */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-400 block mb-2">
+            Nama Lengkap
+          </label>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-3 rounded-lg bg-zinc-800 text-white border border-zinc-700"
-        />
+          <input
+            type="text"
+            placeholder="Masukkan nama lengkap"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="w-full bg-zinc-800 border border-zinc-700 focus:border-yellow-400 outline-none px-4 py-3 rounded-xl"
+          />
+        </div>
 
-        <input
-          type="text"
-          placeholder="Nomor HP (opsional)"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full p-3 mb-3 rounded-lg bg-zinc-800 text-white border border-zinc-700"
-        />
+        {/* EMAIL */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-400 block mb-2">Email</label>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-4 rounded-lg bg-zinc-800 text-white border border-zinc-700"
-        />
+          <input
+            type="email"
+            placeholder="Masukkan email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-zinc-800 border border-zinc-700 focus:border-yellow-400 outline-none px-4 py-3 rounded-xl"
+          />
+        </div>
 
-        <label className="flex items-start gap-2 text-sm text-gray-400 mb-4 cursor-pointer">
+        {/* PHONE */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-400 block mb-2">Nomor HP</label>
+
+          <input
+            type="text"
+            placeholder="08xxxxxxxx"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full bg-zinc-800 border border-zinc-700 focus:border-yellow-400 outline-none px-4 py-3 rounded-xl"
+          />
+        </div>
+
+        {/* PASSWORD */}
+        <div className="mb-5">
+          <label className="text-sm text-gray-400 block mb-2">Password</label>
+
+          <input
+            type="password"
+            placeholder="Minimal 6 karakter"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-zinc-800 border border-zinc-700 focus:border-yellow-400 outline-none px-4 py-3 rounded-xl"
+          />
+        </div>
+
+        {/* TERMS */}
+        <label className="flex items-start gap-3 text-sm text-gray-400 mb-6 cursor-pointer">
           <input
             type="checkbox"
             checked={agree}
@@ -111,22 +163,24 @@ export default function RegisterPage() {
           />
 
           <span>
-            Dengan mendaftar, kamu setuju dengan{" "}
+            Saya setuju dengan{" "}
             <Link href="/terms" className="text-yellow-400 hover:underline">
               syarat & ketentuan
             </Link>
           </span>
         </label>
 
+        {/* BUTTON */}
         <button
           onClick={handleRegister}
           disabled={loading}
-          className="w-full bg-yellow-400 text-black py-3 rounded-lg font-semibold hover:bg-red-500 hover:text-white transition mb-4"
+          className="w-full bg-yellow-400 hover:bg-red-500 hover:text-white text-black py-3 rounded-xl font-bold transition duration-300"
         >
-          {loading ? "Memproses..." : "Daftar"}
+          {loading ? "Memproses..." : "Daftar Sekarang"}
         </button>
 
-        <div className="text-right">
+        {/* LOGIN */}
+        <div className="mt-6 text-center">
           <Link
             href="/login"
             className="text-sm text-gray-400 hover:text-yellow-400 transition"
